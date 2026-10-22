@@ -59,3 +59,12 @@ Ctrl-C/请求失败会终止脚本启动的server进程组；日志和已完成�
 ```bash
 python -m unittest experiments.test_reproduce_smoke -v
 ```
+
+## 隔离 TinyGEMM / CUTLASS DSL 启动错误
+
+可在上述命令添加 `--linear-backend torch`，跳过本仓库的 FlashInfer
+TinyGEMM 安装探测和线性层替换，三种模式统一保留 SGLang 原有线性层实现。
+这不保证关闭 SGLang/FlashInfer 其他位置使用的 CUTLASS 内核；仍然报错时需查看完整调用栈。
+默认 `auto` 保持上游行为。参数记录在 `settings.json`，比较速度时使用相同设置；
+关闭 TinyGEMM 的性能不能直接当作上游优化配置的复现结果。
+直接启动 server 时，可在启动前设置 `export LOOPSPEC_LINEAR_BACKEND=torch`。

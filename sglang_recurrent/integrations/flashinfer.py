@@ -1,6 +1,7 @@
 """Use FlashInfer TinyGEMM whenever a recurrent linear call supports it."""
 
 import logging
+import os
 
 import torch
 
@@ -93,8 +94,19 @@ def install_linear_backend(
     Returns a status dict with ``active`` ("tinygemm" or "torch"), ``reason``,
     and, when queried, ``device_capability`` as a ``(major, minor)`` tuple.
     The "torch" status means SGLang's existing backend is retained.
+    Set LOOPSPEC_LINEAR_BACKEND=torch before startup to skip TinyGEMM entirely.
     """
     global _installed, _tinygemm_bf16
+
+    requested = os.environ.get("LOOPSPEC_LINEAR_BACKEND", "auto")
+    if requested not in {"auto", "torch"}:
+        raise ValueError("LOOPSPEC_LINEAR_BACKEND must be auto or torch")
+    if requested == "torch":
+        if _installed:
+            raise RuntimeError("TinyGEMM already installed; select torch before server startup")
+        reason = "TinyGEMM disabled by LOOPSPEC_LINEAR_BACKEND=torch; retaining SGLang backend"
+        logger.info(reason)
+        return {"active": "torch", "reason": reason}
 
     if _installed:
         return {

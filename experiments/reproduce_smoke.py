@@ -114,11 +114,16 @@ def main():
     parser.add_argument("--output", type=Path, required=True, help="New directory")
     parser.add_argument("--input", type=Path, default=Path(__file__).with_name("smoke_prompts.jsonl"))
     parser.add_argument("--gpu", default="0")
+    parser.add_argument("--linear-backend", choices=("auto", "torch"),
+                        default=os.environ.get("LOOPSPEC_LINEAR_BACKEND", "auto"),
+                        help="torch skips the optional TinyGEMM patch in every mode")
     parser.add_argument("--port", type=int, default=30000)
     parser.add_argument("--max-new-tokens", type=int, default=128)
     parser.add_argument("--memory-fraction", type=float, default=.55)
     parser.add_argument("--timeout", type=int, default=1800)
     args = parser.parse_args()
+    if args.linear_backend not in ("auto", "torch"):
+        parser.error("LOOPSPEC_LINEAR_BACKEND must be auto or torch")
     if args.max_new_tokens < 2 or args.timeout < 1 or not 0 < args.memory_fraction < 1:
         parser.error("Require max-new-tokens >= 2, timeout > 0, memory-fraction in (0,1)")
     if not 1 <= args.port <= 65535:
@@ -137,7 +142,8 @@ def main():
         sock.bind(("127.0.0.1", args.port))  # Fail before starting if occupied.
     args.output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[1]
-    env = {**os.environ, "CUDA_VISIBLE_DEVICES": args.gpu}
+    env = {**os.environ, "CUDA_VISIBLE_DEVICES": args.gpu,
+           "LOOPSPEC_LINEAR_BACKEND": args.linear_backend}
     base_url = f"http://127.0.0.1:{args.port}"
     settings = {k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()}
     settings.update(model=str(model), python=sys.version, modes=list(MODES),
