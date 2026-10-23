@@ -1,0 +1,20 @@
+{"id": "arithmetic", "prompt": "A box contains 12 pencils. There are 3 boxes. How many pencils are there? Explain briefly.\nAnswer:", "category": "text"}
+{"id": "order", "prompt": "Alice is older than Bob. Bob is older than Carol. Who is youngest, and why?\nAnswer:", "category": "text"}
+{"id": "factorial", "prompt": "Write a Python function to compute the factorial of a nonnegative integer.\nAnswer:", "category": "text"}
+{"id": "rain", "prompt": "Explain how rain forms in two sentences.\nAnswer:", "category": "text"}
+{"id": "list", "prompt": "Name three fruits and describe the color of each.\nAnswer:", "category": "text"}
+{"id": "sort", "prompt": "Sort these numbers from smallest to largest: 7, 2, 9, 1, 5.\nAnswer:", "category": "text"}
+{"id": "water", "prompt": "Explain why ice floats on liquid water.\nAnswer:", "category": "text"}
+{"id": "translate", "prompt": "Translate into French: The cat is sleeping on the chair.\nAnswer:", "category": "text"}
+{"id": "compare", "prompt": "Compare a bicycle and a car in two sentences.\nAnswer:", "category": "text"}
+{"id": "sum", "prompt": "Write a Python function that returns the sum of a list of numbers.\nAnswer:", "category": "text"}
+{"id": "fraction", "prompt": "Which is larger, one half or one third? Explain briefly.\nAnswer:", "category": "text"}
+{"id": "sequence", "prompt": "Continue the sequence 2, 4, 8, 16 and explain the rule.\nAnswer:", "category": "text"}
+{"id": "plants", "prompt": "Explain why plants need sunlight.\nAnswer:", "category": "text"}
+{"id": "definition", "prompt": "What is a prime number? Give two examples.\nAnswer:", "category": "text"}
+{"id": "story", "prompt": "Write a two-sentence story about a lost dog finding its way home.\nAnswer:", "category": "text"}
+{"id": "reverse", "prompt": "Write a Python function that reverses a string.\nAnswer:", "category": "text"}
+{"id": "temperature", "prompt": "Explain the difference between temperature and heat.\nAnswer:", "category": "text"}
+{"id": "shopping", "prompt": "A notebook costs 3 dollars. You buy 4 and pay with 20 dollars. What is your change?\nAnswer:", "category": "text"}
+{"id": "instruction", "prompt": "Give three steps for making a cup of tea.\nAnswer:", "category": "text"}
+{"id": "grammar", "prompt": "Correct the grammar: She go to school every days.\nAnswer:", "category": "text"}
