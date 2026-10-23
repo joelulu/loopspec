@@ -25,7 +25,10 @@ def measure_readouts(early, final, references):
     p, q = early.softmax(-1), final.softmax(-1)
     k = min(10, early.shape[-1])
     values, indices = p.topk(k, dim=-1)
-    final_ids = q.argmax(-1)
+    # Greedy decoding uses argmax on logits. topk may pick a different
+    # vocabulary ID among exactly tied maxima, even when early == final.
+    early_ids = early.argmax(-1)
+    final_ids = final.argmax(-1)
     ranks = []
     for row, token in zip(early, final_ids):
         ranks.append(int((row > row[token]).sum().item()) + 1)
@@ -34,8 +37,8 @@ def measure_readouts(early, final, references):
         ids = indices[i].tolist()
         target = int(final_ids[i].item())
         rows.append({
-            'reference_id': int(ref), 'early_id': ids[0], 'final_id': target,
-            'early_confidence': float(values[i, 0].item()),
+            'reference_id': int(ref), 'early_id': int(early_ids[i].item()), 'final_id': target,
+            'early_confidence': float(p[i, int(early_ids[i].item())].item()),
             'early_probability_margin': float((values[i, 0]-values[i, 1]).item()) if k > 1 else 1.0,
             'final_confidence': float(q[i, target].item()),
             'final_probability_in_early': float(p[i, target].item()),

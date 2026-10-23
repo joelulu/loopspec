@@ -31,7 +31,8 @@ class Tensor:
         exp = np.exp(x)
         return Tensor(exp/exp.sum(axis=dim, keepdims=True))
     def topk(self, k, dim):
-        ids = np.argsort(-self.a, axis=dim, kind='stable')[..., :k]
+        # Deliberately choose reverse index order for tied maxima, unlike argmax.
+        ids = np.argsort(self.a, axis=dim, kind='stable')[..., ::-1][..., :k]
         return Tensor(np.take_along_axis(self.a, ids, axis=dim)), Tensor(ids)
 
 
@@ -44,6 +45,20 @@ class ReadoutTests(unittest.TestCase):
         self.assertEqual([r['final_in_early_top5'] for r in rows], [True,False])
         self.assertTrue(all(r['final_in_early_top10'] for r in rows))
         self.assertGreater(rows[0]['final_confidence'], rows[0]['final_probability_in_early'])
+
+    def test_topk_tie_order_does_not_change_greedy_token(self):
+        logits = Tensor([[3, 3, 0]])
+        row = measure_readouts(logits, logits, [0])[0]
+        self.assertEqual(row['early_top10_ids'][0], 1)  # topk picks the other tied ID
+        self.assertEqual(row['early_id'], 0)  # actual greedy argmax
+        self.assertEqual(row['final_id'], 0)
+        self.assertEqual(row['early_probability_margin'], 0)
+        self.assertEqual(row['final_rank_in_early'], 1)
+
+    def test_identical_readouts_always_have_full_top1_agreement(self):
+        logits = Tensor([[3,3,0],[0,4,4],[2,2,2]])
+        rows = measure_readouts(logits, logits, [0,1,0])
+        self.assertTrue(all(row['early_id'] == row['final_id'] for row in rows))
 
     def test_nonfinite_fails(self):
         with self.assertRaises(ValueError):

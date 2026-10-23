@@ -44,6 +44,7 @@ def main():
     settings = {k:str(v) if isinstance(v, Path) else v for k,v in vars(args).items()}
     settings.update(torch_version=torch.__version__, transformers_version=transformers.__version__,
                     use_cache=False, full_depth_cycles=4, exit_at_step=3,
+                    readout_schema_version=2, greedy_readout='argmax on logits, not topk tie order',
                     prompt_style='raw completion without chat template',
                     selected_samples=len(prompts), purpose='readout diagnostic, not LoopSpec pipeline reproduction or speed benchmark',
                     source_sha256={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in ['config.json','modeling_ouro.py','configuration_ouro.py']})
@@ -94,6 +95,8 @@ def main():
                             raise RuntimeError('Final-cycle hooked readout differs from explicit full-depth output')
                         for cycle in range(4):
                             row = measure_readouts(logits[cycle], final, [token])[0]
+                            if cycle == 3 and row['early_id'] != row['final_id']:
+                                raise RuntimeError('Final-cycle self-agreement must be 100%; inspect readout implementation')
                             a, b = captured[cycle].float(), captured[-1].float()
                             row.update(id=sample_id, category=sample.get('category','text'),
                                        position=position, stage=f'cycle{cycle+1}', is_eos=token in eos_ids,
